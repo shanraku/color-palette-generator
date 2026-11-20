@@ -1,0 +1,24 @@
+"use strict";
+(() => {
+ const $=id=>document.getElementById(id);
+ let colors=["#8B5CF6","#EC4899","#F59E0B","#14B8A6","#3B82F6"].map(hex=>({hex,locked:false}));
+ const randomHex=()=>"#"+Math.floor(Math.random()*16777216).toString(16).padStart(6,"0").toUpperCase();
+ function rgb(hex){const n=parseInt(hex.slice(1),16);return {r:n>>16,g:(n>>8)&255,b:n&255};}
+ function hsl(hex){const {r:R,g:G,b:B}=rgb(hex);let r=R/255,g=G/255,b=B/255,max=Math.max(r,g,b),min=Math.min(r,g,b),h=0,s=0,l=(max+min)/2;if(max!==min){let d=max-min;s=l>.5?d/(2-max-min):d/(max+min);switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}h*=60;}return {h:Math.round(h),s:Math.round(s*100),l:Math.round(l*100)};}
+ function notify(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(notify.timer);notify.timer=setTimeout(()=>t.classList.remove("show"),1600);}
+ async function copy(text){try{await navigator.clipboard.writeText(text);notify("Copied to clipboard");}catch{notify("Clipboard permission unavailable");}}
+ function render(){const root=$("palette");root.innerHTML="";colors.forEach((c,i)=>{const {r,g,b}=rgb(c.hex),hs=hsl(c.hex);const card=document.createElement("article");card.className="swatch";const block=document.createElement("div");block.className="color-block";block.style.background=c.hex;const lock=document.createElement("button");lock.className="lock";lock.type="button";lock.textContent=c.locked?"🔒 Locked":"◇ Lock";lock.setAttribute("aria-pressed",String(c.locked));lock.setAttribute("aria-label",(c.locked?"Unlock":"Lock")+" color "+c.hex);lock.addEventListener("click",()=>{c.locked=!c.locked;render();});block.append(lock);const info=document.createElement("div");info.className="swatch-info";const input=document.createElement("input");input.type="color";input.value=c.hex;input.setAttribute("aria-label","Choose color "+(i+1));input.style.cssText="width:100%;height:5px;border:0;padding:0;background:transparent;display:block;margin-bottom:10px";input.addEventListener("input",()=>{c.hex=input.value.toUpperCase();render();});const hex=document.createElement("div");hex.className="hex";hex.textContent=c.hex;const vals=document.createElement("div");vals.className="values";[[`RGB ${r}, ${g}, ${b}`,`rgb(${r}, ${g}, ${b})`],[`HSL ${hs.h}, ${hs.s}%, ${hs.l}%`,`hsl(${hs.h} ${hs.s}% ${hs.l}%)`]].forEach(([label,value])=>{const b=document.createElement("button");b.type="button";b.className="copy-value";b.textContent=label;b.addEventListener("click",()=>copy(value));vals.append(b);});hex.title="Copy HEX";hex.style.cursor="pointer";hex.addEventListener("click",()=>copy(c.hex));info.append(input,hex,vals);card.append(block,info);root.append(card);});updateGradient();updateContrast();}
+ function updateGradient(){const dir=$("gradientDirection").value;const css=`linear-gradient(${dir}, ${colors.map(c=>c.hex).join(", ")})`;$("gradientPreview").style.background=css;$("gradientCode").textContent=`background: ${css};`;}
+ function luminance(hex){const c=Object.values(rgb(hex)).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2];}
+ function updateContrast(){const fg=$("textColor").value,bg=$("bgColor").value,ratio=(Math.max(luminance(fg),luminance(bg))+.05)/(Math.min(luminance(fg),luminance(bg))+.05);$("contrastPreview").style.color=fg;$("contrastPreview").style.background=bg;$("ratio").textContent=ratio.toFixed(2)+":1";$("contrastStatus").textContent=ratio>=4.5?"Passes AA normal text":ratio>=3?"Passes AA large text only":"Does not meet AA text contrast";}
+ function generate(){colors=colors.map(c=>c.locked?c:{...c,hex:randomHex()});render();}
+ $("generate").addEventListener("click",generate);$("gradientDirection").addEventListener("change",updateGradient);$("textColor").addEventListener("input",updateContrast);$("bgColor").addEventListener("input",updateContrast);
+ $("copyGradient").addEventListener("click",()=>copy($("gradientCode").textContent));
+ $("copyPalette").addEventListener("click",()=>copy(colors.map(c=>c.hex).join("\n")));
+ $("exportCss").addEventListener("click",()=>{const css=":root {\n"+colors.map((c,i)=>`  --color-${i+1}: ${c.hex};`).join("\n")+"\n}\n";download("palette.css",css,"text/css");});
+ $("exportJson").addEventListener("click",()=>download("palette.json",JSON.stringify({colors:colors.map(c=>c.hex)},null,2),"application/json"));
+ function download(name,data,type){const url=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);notify("Export started");}
+ $("themeBtn").addEventListener("click",()=>{document.body.classList.toggle("light");});
+ document.addEventListener("keydown",e=>{if(e.code==="Space"&&!["INPUT","TEXTAREA","SELECT","BUTTON"].includes(document.activeElement.tagName)){e.preventDefault();generate();}});
+ render();
+})();
