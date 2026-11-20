@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#11121b">
+<meta name="description" content="Generate beautiful color palettes, copy HEX RGB HSL values, preview gradients and check contrast for free.">
+<title>Palette Lab — Free Color Palette Generator</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"><script src="app.js" defer></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="./"><span class="mark">P</span> Palette<span>Lab</span></a><div class="actions"><button class="btn ghost" id="themeBtn" type="button">☼ Theme</button><button class="btn ghost" id="exportJson" type="button">Export JSON</button><button class="btn primary" id="exportCss" type="button">Export CSS</button></div></header>
+<main class="wrap">
+<section class="hero"><div><p class="eyebrow">COLOR TOOLS FOR EVERYONE</p><h1>Find your next<br><em>perfect palette.</em></h1><p class="sub">Explore color combinations, fine-tune every shade, and make accessible design choices — all in your browser.</p></div><button class="btn generate" id="generate" type="button"><span>✦</span> Generate palette <kbd>Space</kbd></button></section>
+<section class="palette" aria-label="Color palette" id="palette"></section>
+<div class="hint">Tip: lock colors you love, then generate again to explore new combinations.</div>
+<section class="tools-grid">
+<article class="panel"><div class="panel-head"><div><p class="eyebrow">MAKE IT YOURS</p><h2>Gradient studio</h2></div><span class="icon">◒</span></div><div id="gradientPreview" class="gradient-preview"></div><div class="gradient-controls"><label>Direction<select id="gradientDirection"><option value="90deg">Left → Right</option><option value="135deg">Diagonal</option><option value="180deg">Top → Bottom</option><option value="45deg">Diagonal ↗</option></select></label><button class="btn small" id="copyGradient" type="button">Copy CSS</button></div><code id="gradientCode" class="code-line"></code></article>
+<article class="panel"><div class="panel-head"><div><p class="eyebrow">DESIGN FOR EVERYONE</p><h2>Contrast checker</h2></div><span class="icon">◐</span></div><div class="contrast-preview" id="contrastPreview"><strong>Readable text</strong><span>Sample paragraph text</span></div><div class="contrast-controls"><label>Text color<input id="textColor" type="color" value="#ffffff"></label><label>Background<input id="bgColor" type="color" value="#27233a"></label></div><div class="contrast-result"><strong id="ratio">—</strong><span id="contrastStatus">Contrast ratio</span></div><p class="note">AA normal text: 4.5:1 · AA large text: 3:1. A contrast score is one part of accessibility.</p></article>
+</section>
+<section class="bottom"><div><p class="eyebrow">PRIVATE BY DESIGN</p><h2>Your colors stay yours.</h2><p>No account, no uploads, no API key. Generate and edit palettes on your device.</p></div><button class="btn ghost" id="copyPalette" type="button">Copy all colors</button></section>
+</main>
+<footer><span>Made for everyone · MIT licensed</span><a href="https://github.com/shanraku/color-palette-generator" target="_blank" rel="noopener noreferrer">Open source on GitHub ↗</a></footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body></html>
